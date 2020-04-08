@@ -20,11 +20,12 @@ The iOS part is written in Swift and the [Swift support plugin](https://github.c
 Request capture permissions
 
 available config properties
------ | -------
+```
 goSettingModalTitle
 goSettingModalMessage
 goSettingModalOk
 goSettingModalCancel
+```
 
 ## Example
 
