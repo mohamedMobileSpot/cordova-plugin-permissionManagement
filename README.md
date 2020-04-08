@@ -3,7 +3,7 @@
 ## Installation
 
 ```
-cordova plugin add cordova-plugin-permissionManagement --save
+cordova plugin add https://github.com/Mobile-Spot/cordova-plugin-permissionManagement.git --save
 ```
 
 The iOS part is written in Swift and the [Swift support plugin](https://github.com/akofman/cordova-plugin-add-swift-support) is configured as a dependency.
