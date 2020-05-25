@@ -10,10 +10,20 @@ import CoreLocation
   }
   @objc(requestCapturePermission:) func requestCapturePermission(_ command: CDVInvokedUrlCommand) {
     let config = command.argument(at: 0) as! [String:Any]
-    self.pmanagement?.requestCapturePermission(config:config)
-    let warnings = [String]()
-    let result: CDVPluginResult
-    result = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: warnings.joined(separator: "\n"))
-    commandDelegate!.send(result, callbackId: command.callbackId)
+    self.pmanagement?.requestCapturePermission(success: {
+        self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "AUTHORIZATION_GRANTED"), callbackId:command.callbackId)
+    }, fail: {
+        self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "AUTHORIZATION_FAILED"), callbackId:command.callbackId)
+    },config:config)
+
+  }
+  @objc(requestLocationPermission:) func requestLocationPermission(_ command: CDVInvokedUrlCommand) {
+
+    let config = command.argument(at: 0) as! [String:Any]
+    self.pmanagement?.requestLocationPermission(success: {
+        self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "AUTHORIZATION_GRANTED"), callbackId:command.callbackId)
+    }, fail: {
+        self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "AUTHORIZATION_FAILED"), callbackId:command.callbackId)
+    },config:config)
   }
 }

@@ -8,12 +8,17 @@ function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-exports.requestCapturePermission = function(config, success, error) {
+const FUNCTION_PERMISSION_KEY = {
+  CAPTURE: "requestCapturePermission",
+  LOCATION: "requestLocationPermission",
+};
+
+exports.requestPermission = function (key, config, success, error) {
   (0, _exec2.default)(
     success,
     error,
     "PermissionManagement",
-    "requestCapturePermission",
+    FUNCTION_PERMISSION_KEY[key],
     [config]
   );
 };
