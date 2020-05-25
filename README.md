@@ -15,11 +15,13 @@ The iOS part is written in Swift and the [Swift support plugin](https://github.c
 
 ## Methods
 
-## `PermissionManagement.requestCapturePermission(config, success, error)`
+## `PermissionManagement.requestPermission(key, config, success, error)`
 
-Request capture permissions
+Request permissions
+key: "CAPTURE" | "LOCATION"
 
 available config properties
+
 ```
 goSettingModalTitle
 goSettingModalMessage
@@ -30,7 +32,8 @@ goSettingModalCancel
 ## Example
 
 ```
-PermissionManagement.requestCapturePermission(
+PermissionManagement.requestPermission(
+  "CAPTURE",
   {
     goSettingModalTitle:"Capture permession denied",
     goSettingModalMessage:"Go to App settings ?",
