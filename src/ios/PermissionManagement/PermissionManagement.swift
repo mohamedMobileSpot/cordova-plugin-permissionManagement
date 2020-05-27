@@ -5,10 +5,10 @@ import CoreLocation
 
 @objc public class PermissionManagement: UIViewController, AVCaptureMetadataOutputObjectsDelegate, CLLocationManagerDelegate {
     
-    public var authorizationSuccessCallback: (() -> ())?
-    public var authorizationFailureCallback: (() -> ())?
-    
+    public var authorizationSuccessCallback: ((String) -> ())? = {_ in}
+    public var authorizationFailureCallback: ((String) -> ())? = {_ in}
     func currentTopViewController() -> UIViewController {
+        print("current View")
         var topVC: UIViewController? = UIApplication.shared.delegate?.window??.rootViewController
         while ((topVC?.presentedViewController) != nil) {
             topVC = topVC?.presentedViewController
@@ -16,7 +16,8 @@ import CoreLocation
         return topVC!
     }
     
-    @objc public func requestCapturePermission(success successCallback: @escaping () -> (), fail failureCallback: @escaping () -> (),config:[String:Any]) {
+
+    @objc public func requestCapturePermission(success successCallback: @escaping (String) -> (), fail failureCallback: @escaping (String) -> (),config:[String:Any]) {
         
         authorizationSuccessCallback = successCallback
         authorizationFailureCallback = failureCallback
@@ -33,21 +34,22 @@ import CoreLocation
             case .authorized: // The user has previously granted access to the camera.
                 print("AUTHORIZED")
                 if let callback = authorizationSuccessCallback {
-                    callback()
+                    callback("AUTHORIZED")
                 }
                 break;
             case .notDetermined: // The user has not yet been asked for camera access.
                 print("NOT DETERMINED")
+              
                 AVCaptureDevice.requestAccess(for: .video) { granted in
                     if granted {
                         if let callback = self.authorizationSuccessCallback {
-                            callback()
+                            callback("AUTHORIZED")
                         }
                         print("AUTHORIZED")
                     }
                     else{
-                        if let callback = self.authorizationFailureCallback {
-                            callback()
+                        if let callback = self.authorizationSuccessCallback {
+                            callback("UNAUTHORISED")
                         }
                         print("UNAUTHORISED")
                     }
@@ -64,13 +66,33 @@ import CoreLocation
                     }
 
                     if UIApplication.shared.canOpenURL(settingsUrl) {
-                        UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
-                            print("Settings opened: \(success)") // Prints true
-                        })
+                        if #available(iOS 10.0, *) {
+                            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                                print("Settings opened: \(success)") // Prints true
+                                if let callback = self.authorizationSuccessCallback {
+                                    var msg = "UNAUTHORIZED"
+                                    if(AVCaptureDevice.authorizationStatus(for: .video) == .authorized){
+                                        msg = "AUTHORIZED"
+                                    }
+                                    callback(msg)
+                                }
+                            })
+                        } else {
+                            if let callback = self.authorizationFailureCallback {
+                                callback("Error: need ios 10.0 or more")
+                            }
+                            // Fallback on earlier versions
+                        }
                     }
                 }
                 
-                let cancelAction = UIAlertAction(title: goSettingModalCancel, style: .default, handler: nil)
+                let cancelAction = UIAlertAction(title: goSettingModalCancel, style: .default
+                ) { (action) in
+                    print(action)
+                    if let callback = self.authorizationSuccessCallback {
+                        callback("UNAUTHORISED")
+                    }
+                }
                 alertController.addAction(cancelAction)
                 alertController.addAction(settingsAction)
                 
@@ -80,14 +102,17 @@ import CoreLocation
 
             case .restricted: // The user can't grant access due to restrictions.
                 print("RESTRICTED")
+                if let callback = authorizationSuccessCallback {
+                    callback("RESTRICTED")
+                }
                 return
         }
    
     }
     var locationManager: CLLocationManager?
     
-    
-    @objc public func requestLocationPermission(success successCallback: @escaping () -> (), fail failureCallback: @escaping () -> (), config:[String:Any]) {
+
+    @objc public func requestLocationPermission(success successCallback: @escaping (String) -> (), fail failureCallback: @escaping (String) -> (), config:[String:Any]) {
         authorizationSuccessCallback = successCallback
         authorizationFailureCallback = failureCallback
         locationManager = CLLocationManager()
@@ -117,12 +142,32 @@ import CoreLocation
                         }
 
                         if UIApplication.shared.canOpenURL(settingsUrl) {
-                            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
-                                print("Settings opened: \(success)") // Prints true
-                            })
+                            if #available(iOS 10.0, *) {
+                                UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                                    print("Settings opened: \(success)") // Prints true
+                                    if let callback = self.authorizationSuccessCallback {
+                                        var msg = "UNAUTHORIZED"
+                                        if(CLLocationManager.authorizationStatus() == .authorizedAlways || CLLocationManager.authorizationStatus() == .authorizedWhenInUse){
+                                            msg = "AUTHORIZED"
+                                        }
+                                        callback(msg)
+                                    }
+                                })
+                            } else {
+                                if let callback = self.authorizationFailureCallback {
+                                    callback("Error: need ios 10.0 or more")
+                                }
+                                // Fallback on earlier versions
+                            }
                         }
                     }
-                    let cancelAction = UIAlertAction(title: goSettingModalCancel, style: .default, handler: nil)
+                    let cancelAction = UIAlertAction(title: goSettingModalCancel, style: .default
+                    ) { (action) in
+                        print(action)
+                        if let callback = self.authorizationSuccessCallback {
+                            callback("UNAUTHORISED")
+                        }
+                    }
                            alertController.addAction(cancelAction)
                            alertController.addAction(settingsAction)
                         
@@ -130,23 +175,18 @@ import CoreLocation
                            currentTopVC?.present(alertController, animated: true, completion: nil)
 
                     break;
-                case .authorizedAlways, .authorizedWhenInUse:
-                    print("authorized");
+                case .authorizedAlways:
+                    if let callback = authorizationSuccessCallback {
+                        print("successCallBack")
+                        callback("AUTHORIZED_ALWAYS")
+                    }
                     break;
-            }
+                case .authorizedWhenInUse:
+                    if let callback = authorizationSuccessCallback {
+                        print("successCallBack")
+                        callback("AUTHORIZED_WHEN_IN_USE")
+                    }
         }
-    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        if (status == CLAuthorizationStatus.authorizedAlways || status == CLAuthorizationStatus.authorizedWhenInUse ) {
-            if let callback = authorizationSuccessCallback {
-                print("successCallBack")
-                callback()
-            }
-        } else if (status == CLAuthorizationStatus.denied) {
-            if let callback = authorizationFailureCallback {
-                print("failureCallback")
-                callback()
-            }
-        }
+        
     }
-    
 }
