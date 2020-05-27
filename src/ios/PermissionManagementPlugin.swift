@@ -20,7 +20,6 @@ import CoreLocation
     }, fail: {msg in
         self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: msg), callbackId:command.callbackId)
     },config:config)
-
   }
   @objc(requestLocationPermission:) func requestLocationPermission(_ command: CDVInvokedUrlCommand) {
     self.callBackContext = command.callbackId
@@ -34,6 +33,7 @@ import CoreLocation
         self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: msg), callbackId:self.callBackContext)
     },config:config)
   }
+  // function from CLLocationManagerDelegate to listen location authorization change status
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         var msg = ""
         switch status {
@@ -55,7 +55,7 @@ import CoreLocation
         }
             
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: msg)
-        pluginResult?.setKeepCallbackAs(true)
+        pluginResult?.setKeepCallbackAs(true) // keep callback
         self.commandDelegate.send(pluginResult, callbackId: self.callBackContext)
     }
      

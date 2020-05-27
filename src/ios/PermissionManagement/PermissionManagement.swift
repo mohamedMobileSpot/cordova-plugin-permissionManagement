@@ -49,14 +49,14 @@ import CoreLocation
                     }
                     else{
                         if let callback = self.authorizationSuccessCallback {
-                            callback("UNAUTHORISED")
+                            callback("UNAUTHORIZED")
                         }
-                        print("UNAUTHORISED")
+                        print("UNAUTHORIZED")
                     }
                 }
             
             case .denied: // The user has previously denied access.
-                print("UNAUTHORISED")
+                print("DENIED")
                 let alertController = UIAlertController (title: goSettingModalTitle, message: goSettingModalMessage, preferredStyle: .alert)
 
                 let settingsAction = UIAlertAction(title: goSettingModalOk, style: .default) { (_) -> Void in
@@ -90,7 +90,7 @@ import CoreLocation
                 ) { (action) in
                     print(action)
                     if let callback = self.authorizationSuccessCallback {
-                        callback("UNAUTHORISED")
+                        callback("UNAUTHORIZED")
                     }
                 }
                 alertController.addAction(cancelAction)
@@ -165,7 +165,7 @@ import CoreLocation
                     ) { (action) in
                         print(action)
                         if let callback = self.authorizationSuccessCallback {
-                            callback("UNAUTHORISED")
+                            callback("UNAUTHORIZED")
                         }
                     }
                            alertController.addAction(cancelAction)
