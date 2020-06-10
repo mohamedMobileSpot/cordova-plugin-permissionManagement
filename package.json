@@ -10,6 +10,7 @@
   "cordova": {
     "id": "cordova-plugin-permissionManagement",
     "platforms": [
+      "android",
       "ios"
     ]
   },

@@ -44,3 +44,26 @@ PermissionManagement.requestPermission(
   error
 )
 ```
+
+## Troubleshooting
+if request permission dialog not showing.
+###### android
+for request to work it's we need to add on `AndroidManifest.xml` the user permissions:
+```
+...
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+...
+```
+
+###### ios
+for request to work it's we need to add on info-plist the appropriate `key` `value`
+property list :
+- Camera:
+NSCameraUsageDescription
+- Location:
+NSLocationAlwaysAndWhenInUseUsageDescription
+NSLocationWhenInUseUsageDescription
+
+
