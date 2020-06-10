@@ -18,7 +18,7 @@ exports.requestPermission = function (key, config, success, error) {
     success,
     error,
     "PermissionManagement",
-    FUNCTION_PERMISSION_KEY[key],
+    FUNCTION_PERMISSION_KEY[key.toUpperCase()],
     [config]
   );
 };

@@ -16,21 +16,25 @@ import CoreLocation
   @objc(requestCapturePermission:) func requestCapturePermission(_ command: CDVInvokedUrlCommand) {
     let config = command.argument(at: 0) as! [String:Any]
     self.pmanagement?.requestCapturePermission(success: { msg in
-        self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_OK, messageAs: msg), callbackId:command.callbackId)
+        let arrayObject = ["message":msg] as [AnyHashable : Any]
+        self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_OK, messageAs: arrayObject), callbackId:command.callbackId)
     }, fail: {msg in
-        self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: msg), callbackId:command.callbackId)
+        let arrayObject = ["message":msg] as [AnyHashable : Any]
+        self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: arrayObject), callbackId:command.callbackId)
     },config:config)
   }
   @objc(requestLocationPermission:) func requestLocationPermission(_ command: CDVInvokedUrlCommand) {
     self.callBackContext = command.callbackId
     let config = command.argument(at: 0) as! [String:Any]
     self.pmanagement?.requestLocationPermission(success: { msg in
-        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: msg)
+        let arrayObject = ["message":msg] as [AnyHashable : Any]
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: arrayObject)
         pluginResult?.setKeepCallbackAs(true)
         self.commandDelegate!.send(pluginResult, callbackId:self.callBackContext)
     }
     , fail: { msg in
-        self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: msg), callbackId:self.callBackContext)
+        let arrayObject = ["message":msg] as [AnyHashable : Any]
+        self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: arrayObject), callbackId:self.callBackContext)
     },config:config)
   }
   // function from CLLocationManagerDelegate to listen location authorization change status
@@ -53,8 +57,8 @@ import CoreLocation
              msg = "AUTHORIZED_WHEN_IN_USE"
             break
         }
-            
-        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: msg)
+        let arrayObject = ["message":msg] as [AnyHashable : Any]
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: arrayObject )
         pluginResult?.setKeepCallbackAs(true) // keep callback
         self.commandDelegate.send(pluginResult, callbackId: self.callBackContext)
     }
