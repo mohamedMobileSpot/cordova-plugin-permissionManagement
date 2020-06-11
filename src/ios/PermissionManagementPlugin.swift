@@ -44,19 +44,19 @@ import CoreLocation
         var msg = ""
         switch status {
         case .authorizedAlways:
-            msg = self.AUTHORIZATION_SUCCESS
+            msg = AUTHORIZATION_SUCCESS
             break
         case .notDetermined:
              msg = "NOT_DETERMINED"
             break
         case .restricted:
-             msg = self.AUTHORIZATION_FAIL
+             msg = AUTHORIZATION_FAIL
             break
         case .denied:
-             msg = self.AUTHORIZATION_FAIL
+             msg = AUTHORIZATION_FAIL
             break
         case .authorizedWhenInUse:
-             msg = self.AUTHORIZATION_SUCCESS
+             msg = AUTHORIZATION_SUCCESS
             break
         }
         let arrayObject = ["message":msg] as [AnyHashable : Any]
