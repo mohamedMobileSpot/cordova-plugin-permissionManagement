@@ -64,8 +64,8 @@ public class PermissionManagement extends CordovaPlugin {
 
     private CallbackContext permissionsCallback;
 
-    public final String AUTHORIZATION_SUCCESS = "AUTHORIZED_WHEN_IN_USE";
-    public final String AUTHORIZATION_FAILED = "UNAUTHORIZED";
+    public final String AUTHORIZATION_SUCCESS = "AUTHORIZED";
+    public final String AUTHORIZATION_FAILED = "DENIED";
     
     @Override
     public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
