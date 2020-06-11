@@ -6,6 +6,8 @@ import CoreLocation
   private var pmanagement: PermissionManagement?
   private var locationManager: CLLocationManager?
   var callBackContext: String?
+  private var AUTHORIZATION_SUCCESS = "AUTHORIZED"
+  private var AUTHORIZATION_FAIL = "DENIED"
   override func pluginInitialize() {
     self.pmanagement = PermissionManagement()
     locationManager = CLLocationManager()
@@ -42,19 +44,19 @@ import CoreLocation
         var msg = ""
         switch status {
         case .authorizedAlways:
-            msg = "AUTHORIZED_ALWAYS"
+            msg = AUTHORIZATION_SUCCESS
             break
         case .notDetermined:
              msg = "NOT_DETERMINED"
             break
         case .restricted:
-             msg = "UNAUTHORIZED"
+             msg = AUTHORIZATION_FAIL
             break
         case .denied:
-             msg = "UNAUTHORIZED"
+             msg = AUTHORIZATION_FAIL
             break
         case .authorizedWhenInUse:
-             msg = "AUTHORIZED_WHEN_IN_USE"
+             msg = AUTHORIZATION_SUCCESS
             break
         }
         let arrayObject = ["message":msg] as [AnyHashable : Any]

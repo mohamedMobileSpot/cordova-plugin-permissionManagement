@@ -7,6 +7,9 @@ import CoreLocation
     
     public var authorizationSuccessCallback: ((String) -> ())? = {_ in}
     public var authorizationFailureCallback: ((String) -> ())? = {_ in}
+    public var AUTHORIZATION_SUCCESS = "AUTHORIZED"
+    public var AUTHORIZATION_FAIL = "DENIED"
+    
     func currentTopViewController() -> UIViewController {
         print("current View")
         var topVC: UIViewController? = UIApplication.shared.delegate?.window??.rootViewController
@@ -34,7 +37,7 @@ import CoreLocation
             case .authorized: // The user has previously granted access to the camera.
                 print("AUTHORIZED")
                 if let callback = authorizationSuccessCallback {
-                    callback("AUTHORIZED")
+                    callback(AUTHORIZATION_SUCCESS)
                 }
                 break;
             case .notDetermined: // The user has not yet been asked for camera access.
@@ -43,15 +46,15 @@ import CoreLocation
                 AVCaptureDevice.requestAccess(for: .video) { granted in
                     if granted {
                         if let callback = self.authorizationSuccessCallback {
-                            callback("AUTHORIZED")
+                            callback(AUTHORIZATION_SUCCESS)
                         }
                         print("AUTHORIZED")
                     }
                     else{
                         if let callback = self.authorizationSuccessCallback {
-                            callback("UNAUTHORIZED")
+                            callback(AUTHORIZATION_FAIL)
                         }
-                        print("UNAUTHORIZED")
+                        print("DENIED")
                     }
                 }
             
@@ -70,9 +73,9 @@ import CoreLocation
                             UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
                                 print("Settings opened: \(success)") // Prints true
                                 if let callback = self.authorizationSuccessCallback {
-                                    var msg = "UNAUTHORIZED"
+                                    var msg = AUTHORIZATION_FAIL
                                     if(AVCaptureDevice.authorizationStatus(for: .video) == .authorized){
-                                        msg = "AUTHORIZED"
+                                        msg = AUTHORIZATION_SUCCESS
                                     }
                                     callback(msg)
                                 }
@@ -90,7 +93,7 @@ import CoreLocation
                 ) { (action) in
                     print(action)
                     if let callback = self.authorizationSuccessCallback {
-                        callback("UNAUTHORIZED")
+                        callback(AUTHORIZATION_FAIL)
                     }
                 }
                 alertController.addAction(cancelAction)
@@ -103,7 +106,7 @@ import CoreLocation
             case .restricted: // The user can't grant access due to restrictions.
                 print("RESTRICTED")
                 if let callback = authorizationSuccessCallback {
-                    callback("RESTRICTED")
+                    callback(AUTHORIZATION_FAIL)
                 }
                 return
         }
@@ -146,9 +149,9 @@ import CoreLocation
                                 UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
                                     print("Settings opened: \(success)") // Prints true
                                     if let callback = self.authorizationSuccessCallback {
-                                        var msg = "UNAUTHORIZED"
+                                        var msg = AUTHORIZATION_FAIL
                                         if(CLLocationManager.authorizationStatus() == .authorizedAlways || CLLocationManager.authorizationStatus() == .authorizedWhenInUse){
-                                            msg = "AUTHORIZED"
+                                            msg = AUTHORIZATION_SUCCESS
                                         }
                                         callback(msg)
                                     }
@@ -165,7 +168,7 @@ import CoreLocation
                     ) { (action) in
                         print(action)
                         if let callback = self.authorizationSuccessCallback {
-                            callback("UNAUTHORIZED")
+                            callback(AUTHORIZATION_FAIL)
                         }
                     }
                            alertController.addAction(cancelAction)
@@ -178,13 +181,13 @@ import CoreLocation
                 case .authorizedAlways:
                     if let callback = authorizationSuccessCallback {
                         print("successCallBack")
-                        callback("AUTHORIZED_ALWAYS")
+                        callback(AUTHORIZATION_SUCCESS)
                     }
                     break;
                 case .authorizedWhenInUse:
                     if let callback = authorizationSuccessCallback {
                         print("successCallBack")
-                        callback("AUTHORIZED_WHEN_IN_USE")
+                        callback(AUTHORIZATION_SUCCESS)
                     }
         }
         
