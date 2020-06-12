@@ -154,10 +154,15 @@ public class PermissionManagement extends CordovaPlugin {
     private String getValueFromKey(JSONArray config, String key, String defaultValue) throws Exception { // getValue of JSONArray if null take default
         String result = "";
         for (int i = 0; i < config.length(); ++i) {
-            JSONObject jsn = config.getJSONObject(i);
-            result += jsn.getString(key);
+            try {
+                JSONObject jsn = config.getJSONObject(i);
+                result = jsn.getString(key);
+            }
+            catch (Exception error) {
+                result = defaultValue;
+            }
         }
-        return result == "" ? defaultValue : result;
+        return result;
     }
 
     private void requestCapturePermission(CallbackContext callbackContext, JSONArray config) throws Exception {
@@ -169,7 +174,6 @@ public class PermissionManagement extends CordovaPlugin {
         String goSettingModalMessage = (String) getValueFromKey(config, "goSettingModalMessage", "Go to Settings?"); // getValueFromKey get the value defined on config or a defaultvalue
         String goSettingModalOk = (String) getValueFromKey(config, "goSettingModalOk", "Settings"); // getValueFromKey get the value defined on config or a defaultvalue
         String goSettingModalCancel = (String) getValueFromKey(config, "goSettingModalCancel", "Cancel"); // getValueFromKey get the value defined on config or a defaultvalue
-
         JSONObject returnObj = new JSONObject();    
         if(context.checkSelfPermission(CAPTURE) == PackageManager.PERMISSION_DENIED){
             if(showRationaleRequest){
@@ -192,7 +196,6 @@ public class PermissionManagement extends CordovaPlugin {
         String goSettingModalMessage = (String) getValueFromKey(config, "goSettingModalMessage", "Go to Settings?"); // getValueFromKey get the value defined on config or a defaultvalue
         String goSettingModalOk = (String) getValueFromKey(config, "goSettingModalOk", "Settings"); // getValueFromKey get the value defined on config or a defaultvalue
         String goSettingModalCancel = (String) getValueFromKey(config, "goSettingModalCancel", "Cancel"); // getValueFromKey get the value defined on config or a defaultvalue
-        
         JSONObject returnObj = new JSONObject();
         if(context.checkSelfPermission(LOCATION) == PackageManager.PERMISSION_DENIED && context.checkSelfPermission(LOCATION_GENERAL) == PackageManager.PERMISSION_DENIED){
             if(showRationaleRequest){
