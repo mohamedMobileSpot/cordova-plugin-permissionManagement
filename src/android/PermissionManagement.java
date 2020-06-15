@@ -109,7 +109,7 @@ public class PermissionManagement extends CordovaPlugin {
         }
         return false;
     }
-
+    // onActivityResult is result after the request AlertDialog
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == REQUEST_CODE_ENABLE_PERMISSION ) {
@@ -122,10 +122,20 @@ public class PermissionManagement extends CordovaPlugin {
             String resultMessage = checkPermission(ASK_PERMISSION_KEY) ? AUTHORIZATION_SUCCESS : AUTHORIZATION_FAILED;
             LOG.d(LOG_KEY, resultMessage);
             addProperty(returnObj, KEY_MESSAGE, resultMessage);
+            addProperty(returnObj, KEY_RESULT_PERMISSION, checkPermission(ASK_PERMISSION_KEY));
             permissionsCallback.success(returnObj);
         }
          
     }
+    
+    private Boolean isLocationServicesAvailable(Context context){
+        LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+        return gps_enabled;
+    }   
 
     @Override
     public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
@@ -138,7 +148,7 @@ public class PermissionManagement extends CordovaPlugin {
         if (permissions != null && permissions.length > 0) {
             //Call checkPermission again to verify
             boolean hasAllPermissions = hasAllPermissions(permissions);
-            // addProperty(returnObj, KEY_RESULT_PERMISSION, hasAllPermissions);
+            addProperty(returnObj, KEY_RESULT_PERMISSION, checkPermission(ASK_PERMISSION_KEY));
             String message = hasAllPermissions ? AUTHORIZATION_SUCCESS : AUTHORIZATION_FAILED;
             addProperty(returnObj, KEY_MESSAGE, message);
             
@@ -184,6 +194,7 @@ public class PermissionManagement extends CordovaPlugin {
             }
         } else{
             addProperty(returnObj, KEY_MESSAGE, AUTHORIZATION_SUCCESS);
+            addProperty(returnObj, KEY_RESULT_PERMISSION, true);
             permissionsCallback.success(returnObj);
         }
     }
@@ -197,17 +208,23 @@ public class PermissionManagement extends CordovaPlugin {
         String goSettingModalOk = (String) getValueFromKey(config, "goSettingModalOk", "Settings"); // getValueFromKey get the value defined on config or a defaultvalue
         String goSettingModalCancel = (String) getValueFromKey(config, "goSettingModalCancel", "Cancel"); // getValueFromKey get the value defined on config or a defaultvalue
         JSONObject returnObj = new JSONObject();
-        if(context.checkSelfPermission(LOCATION) == PackageManager.PERMISSION_DENIED && context.checkSelfPermission(LOCATION_GENERAL) == PackageManager.PERMISSION_DENIED){
-            if(showRationaleRequest){
-                settingPath = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
-                alert(goSettingModalMessage, goSettingModalTitle ,goSettingModalOk, goSettingModalCancel, permissionsCallback);
+        if (isLocationServicesAvailable) {
+            if(context.checkSelfPermission(LOCATION) == PackageManager.PERMISSION_DENIED && context.checkSelfPermission(LOCATION_GENERAL) == PackageManager.PERMISSION_DENIED){
+                if(showRationaleRequest){
+                    settingPath = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
+                    alert(goSettingModalMessage, goSettingModalTitle ,goSettingModalOk, goSettingModalCancel, permissionsCallback);
+                }else {
+                    cordova.requestPermission(this, REQUEST_CODE_ENABLE_PERMISSION, LOCATION);
+                }
             }else {
-                cordova.requestPermission(this, REQUEST_CODE_ENABLE_PERMISSION, LOCATION);
+                addProperty(returnObj, KEY_MESSAGE, AUTHORIZATION_SUCCESS);
+                permissionsCallback.success(returnObj);
             }
         }else {
-            addProperty(returnObj, KEY_MESSAGE, AUTHORIZATION_SUCCESS);
+            addProperty(returnObj, KEY_MESSAGE, "Your location Service is not available");
             permissionsCallback.success(returnObj);
         }
+        
           
     }
 
@@ -254,6 +271,7 @@ public class PermissionManagement extends CordovaPlugin {
                         dialog.dismiss();
                         String resultMessage = checkPermission(ASK_PERMISSION_KEY) ? AUTHORIZATION_SUCCESS : AUTHORIZATION_FAILED;
                         addProperty(returnObj, KEY_MESSAGE, resultMessage);
+                        addProperty(returnObj, KEY_RESULT_PERMISSION, checkPermission(ASK_PERMISSION_KEY));
                         callbackContext.success(returnObj);
                     }
                 });

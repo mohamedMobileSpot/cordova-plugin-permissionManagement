@@ -5,8 +5,8 @@ import CoreLocation
 
 @objc public class PermissionManagement: UIViewController, AVCaptureMetadataOutputObjectsDelegate, CLLocationManagerDelegate {
     
-    public var authorizationSuccessCallback: ((String) -> ())? = {_ in}
-    public var authorizationFailureCallback: ((String) -> ())? = {_ in}
+    public var authorizationSuccessCallback: ((Any) -> ())? = {_ in}
+    public var authorizationFailureCallback: ((Any) -> ())? = {_ in}
     func currentTopViewController() -> UIViewController {
         print("current View")
         var topVC: UIViewController? = UIApplication.shared.delegate?.window??.rootViewController
@@ -17,7 +17,7 @@ import CoreLocation
     }
     
 
-    @objc public func requestCapturePermission(success successCallback: @escaping (String) -> (), fail failureCallback: @escaping (String) -> (),config:[String:Any]) {
+    @objc public func requestCapturePermission(success successCallback: @escaping (Any) -> (), fail failureCallback: @escaping (Any) -> (),config:[String:Any]) {
         
         authorizationSuccessCallback = successCallback
         authorizationFailureCallback = failureCallback
@@ -34,7 +34,8 @@ import CoreLocation
             case .authorized: // The user has previously granted access to the camera.
                 print("AUTHORIZED")
                 if let callback = authorizationSuccessCallback {
-                    callback("AUTHORIZED")
+                    let result = ["message":"AUTHORIZED", "hasPermission":true] as [String:Any]
+                    callback(result)
                 }
                 break;
             case .notDetermined: // The user has not yet been asked for camera access.
@@ -43,13 +44,15 @@ import CoreLocation
                 AVCaptureDevice.requestAccess(for: .video) { granted in
                     if granted {
                         if let callback = self.authorizationSuccessCallback {
-                            callback("AUTHORIZED")
+                            let result = ["message":"AUTHORIZED", "hasPermission":true] as [String:Any]
+                            callback(result)
                         }
                         print("AUTHORIZED")
                     }
                     else{
                         if let callback = self.authorizationSuccessCallback {
-                            callback("DENIED")
+                           let result = ["message":"DENIED", "hasPermission":false] as [String:Any]
+                            callback(result)
                         }
                         print("UNAUTHORIZED")
                     }
@@ -74,7 +77,8 @@ import CoreLocation
                                     if(AVCaptureDevice.authorizationStatus(for: .video) == .authorized){
                                         msg = "AUTHORIZED"
                                     }
-                                    callback(msg)
+                                    let result = ["message":msg, "hasPermission":AVCaptureDevice.authorizationStatus(for: .video) == .authorized] as [String:Any]
+                                    callback(result)
                                 }
                             })
                         } else {
@@ -90,7 +94,8 @@ import CoreLocation
                 ) { (action) in
                     print(action)
                     if let callback = self.authorizationSuccessCallback {
-                        callback("DENIED")
+                        let result = ["message":"DENIED", "hasPermission":false] as [String:Any]
+                        callback(result)
                     }
                 }
                 alertController.addAction(cancelAction)
@@ -103,7 +108,8 @@ import CoreLocation
             case .restricted: // The user can't grant access due to restrictions.
                 print("RESTRICTED")
                 if let callback = authorizationSuccessCallback {
-                    callback("RESTRICTED")
+                    let result = ["message":"RESTRICTED", "hasPermission":false] as [String:Any]
+                    callback(result)
                 }
                 return
         }
@@ -112,7 +118,7 @@ import CoreLocation
     var locationManager: CLLocationManager?
     
 
-    @objc public func requestLocationPermission(success successCallback: @escaping (String) -> (), fail failureCallback: @escaping (String) -> (), config:[String:Any]) {
+    @objc public func requestLocationPermission(success successCallback: @escaping (Any) -> (), fail failureCallback: @escaping (Any) -> (), config:[String:Any]) {
         authorizationSuccessCallback = successCallback
         authorizationFailureCallback = failureCallback
         locationManager = CLLocationManager()
@@ -126,8 +132,9 @@ import CoreLocation
         let goSettingModalOk = (config["goSettingModalOk"] != nil) ? config["goSettingModalOk"] as! String : "Settings"
         
         let goSettingModalCancel = (config["goSettingModalCancel"] != nil) ? config["goSettingModalCancel"] as! String : "Cancel"
-        
-        switch CLLocationManager.authorizationStatus() {
+
+        if CLLocationManager.locationServicesEnabled() {
+            switch CLLocationManager.authorizationStatus() {
                 case .notDetermined:
                     locationManager?.requestWhenInUseAuthorization();
                     break;
@@ -146,16 +153,16 @@ import CoreLocation
                                 UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
                                     print("Settings opened: \(success)") // Prints true
                                     if let callback = self.authorizationSuccessCallback {
-                                        var msg = "DENIED"
+                                        var result = ["message": "DENIED", "hasPermission": false] as [String : Any]
                                         if(CLLocationManager.authorizationStatus() == .authorizedAlways || CLLocationManager.authorizationStatus() == .authorizedWhenInUse){
-                                            msg = "AUTHORIZED"
+                                            result = ["message": "AUTHORIZED", "hasPermission": true] as [String : Any]
                                         }
-                                        callback(msg)
+                                        callback(result)
                                     }
                                 })
                             } else {
                                 if let callback = self.authorizationFailureCallback {
-                                    callback("Error: need ios 10.0 or more")
+                                    callback(["error": "need ios 10.0 or more"])
                                 }
                                 // Fallback on earlier versions
                             }
@@ -165,7 +172,8 @@ import CoreLocation
                     ) { (action) in
                         print(action)
                         if let callback = self.authorizationSuccessCallback {
-                            callback("DENIED")
+                            let result = ["message": "DENIED", "hasPermission": false] as [String : Any]
+                            callback(result)
                         }
                     }
                            alertController.addAction(cancelAction)
@@ -178,14 +186,21 @@ import CoreLocation
                 case .authorizedAlways:
                     if let callback = authorizationSuccessCallback {
                         print("successCallBack")
-                        callback("AUTHORIZED")
+                        let result = ["message": "ALWAYS_AUTHORIZED", "hasPermission": true] as [String : Any]
+                        callback(result)
                     }
                     break;
                 case .authorizedWhenInUse:
                     if let callback = authorizationSuccessCallback {
                         print("successCallBack")
-                        callback("AUTHORIZED")
+                        let result = ["message": "AUTHORIZED_WHEN_IN_USE", "hasPermission": true] as [String : Any]
+                        callback(result)
                     }
+            }
+        }
+        else {
+            let msg = ["message":"Your location Service is not available"] as [String : Any]
+            self.authorizationSuccessCallback!(msg)
         }
         
     }
