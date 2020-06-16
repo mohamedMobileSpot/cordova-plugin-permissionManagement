@@ -61,9 +61,9 @@ for request to work, we need to add on `AndroidManifest.xml` the user permission
 for request to work, we need to add on info-plist the appropriate `key` `value`
 property list :
 - Camera:
-NSCameraUsageDescription
+  NSCameraUsageDescription
 - Location:
-NSLocationAlwaysAndWhenInUseUsageDescription
-NSLocationWhenInUseUsageDescription
+  NSLocationAlwaysAndWhenInUseUsageDescription
+  NSLocationWhenInUseUsageDescription
 
 
