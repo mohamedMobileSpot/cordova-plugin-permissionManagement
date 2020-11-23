@@ -209,7 +209,7 @@ public class PermissionManagement extends CordovaPlugin {
         String goSettingModalOk = (String) getValueFromKey(config, "goSettingModalOk", "Settings"); // getValueFromKey get the value defined on config or a defaultvalue
         String goSettingModalCancel = (String) getValueFromKey(config, "goSettingModalCancel", "Cancel"); // getValueFromKey get the value defined on config or a defaultvalue
         JSONObject returnObj = new JSONObject();
-        if (isLocationServicesAvailable()) {
+        if (isLocationServicesAvailable(context)) {
             if(context.checkSelfPermission(LOCATION) == PackageManager.PERMISSION_DENIED && context.checkSelfPermission(LOCATION_GENERAL) == PackageManager.PERMISSION_DENIED){
                 if(showRationaleRequest){
                     settingPath = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
