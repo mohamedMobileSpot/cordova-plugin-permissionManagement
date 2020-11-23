@@ -33,7 +33,6 @@ import android.widget.TextView;
 import android.os.Build;
 import android.content.Context;
 import android.provider.Settings;
-import androidx.core.location.LocationManagerCompat;
 
 
 import org.json.JSONArray;
@@ -141,7 +140,7 @@ public class PermissionManagement extends CordovaPlugin {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 // This is new method provided in API 28
                 LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-                return lm != null ? LocationManagerCompat.isLocationEnabled(lm) : false;
+                return lm.isLocationEnabled();
             } else {
                 // This is Deprecated in API 28
                 int mode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE,
