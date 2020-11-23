@@ -130,25 +130,12 @@ public class PermissionManagement extends CordovaPlugin {
     }
     
     private Boolean isLocationServicesAvailable(Context context){
-        // LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        // boolean gps_enabled = false;
-        // try {
-        //     gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        // } catch(Exception ex) { return false;}
-        // return gps_enabled;
-        
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                // This is new method provided in API 28
-                LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-                return lm.isLocationEnabled();
-            } else {
-                // This is Deprecated in API 28
-                int mode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE,
-                        Settings.Secure.LOCATION_MODE_OFF);
-                return  (mode != Settings.Secure.LOCATION_MODE_OFF);
-    
-            }
-        
+        LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+        return gps_enabled;
     }   
 
     @Override
@@ -222,7 +209,7 @@ public class PermissionManagement extends CordovaPlugin {
         String goSettingModalOk = (String) getValueFromKey(config, "goSettingModalOk", "Settings"); // getValueFromKey get the value defined on config or a defaultvalue
         String goSettingModalCancel = (String) getValueFromKey(config, "goSettingModalCancel", "Cancel"); // getValueFromKey get the value defined on config or a defaultvalue
         JSONObject returnObj = new JSONObject();
-        if (isLocationServicesAvailable) {
+        if (isLocationServicesAvailable()) {
             if(context.checkSelfPermission(LOCATION) == PackageManager.PERMISSION_DENIED && context.checkSelfPermission(LOCATION_GENERAL) == PackageManager.PERMISSION_DENIED){
                 if(showRationaleRequest){
                     settingPath = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
